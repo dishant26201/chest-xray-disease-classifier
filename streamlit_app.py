@@ -1,4 +1,4 @@
-# app/streamlit_app.py
+# ./streamlit_app.py
 
 import streamlit as st
 from PIL import Image
@@ -6,6 +6,7 @@ import pandas as pd
 import tensorflow as tf
 from src.preprocessing import predict_labels
 from src.config import MODEL_PATH
+from src.grad_cam import generate_gradcam 
 
 #  Take the raw dict from predict_labels and return a list sorted by probability in descending order
 def format_predictions(preds_dict):
@@ -32,13 +33,14 @@ def main():
     st.markdown(
     """
 
-    This is an experimental machine learning model which was trained on frontal chest radiographs (NIH ChestX-ray14). 
-    While it can identify patterns associated with common chest x-rays, it is **not a diagnostic tool** and may produce incorrect results.
+    This model was trained on frontal chest radiographs (NIH ChestX-ray14).
     Please do not upload other image types (e.g., photos, lateral x-rays, etc) as the model will produce invalid predictions.
 
     ##### **Model reliability notice**
 
-    This model is still a work in progress:
+    This classifier is an experimental machine learning model. While it can identify patterns associated with common chest x-rays, it is **not a diagnostic tool** and may produce incorrect results.
+
+    The model is still a work in progress:
     - It has been trained for a limited number of epochs.  
     - Further training and tuning are required to improve performance.  
     - Longer training requires additional compute resources which is a limitation.
@@ -60,9 +62,6 @@ def main():
             st.error("Could not open the uploaded file as an image.") # Error if unable to open file
             return
 
-        st.image(image, width=320, caption="Uploaded image") # Show the image back to the user
-
-
         model = load_chest_xray_model() # Load the model
 
         # Run model prediction along with a spinner
@@ -82,11 +81,43 @@ def main():
                 "**Predicted condition:** None"
                 f"(All probabilities are below the {threshold:.3f} threshold)."
             )
+            default_gradcam_label = sorted_preds[0][0]  # highest-probability label
         else:
+            top_label = predicted_conditions[0][0]
             st.markdown(
-                f"<div style='font-size:20px;'><b>Predicted condition:</b> {predicted_conditions[0][0]}</div>",
+                f"<div style='font-size:20px;'><b>Predicted condition:</b> {top_label}</div>",
                 unsafe_allow_html=True
             ) # Display the predicted condition (bold the side label)
+            default_gradcam_label = top_label
+
+        st.write("")
+
+        # Dropdown with all conditions (sorted by probability)
+        all_conditions = [label for label, prob in sorted_preds]
+        default_index = all_conditions.index(default_gradcam_label)
+
+        selected_condition = st.selectbox(
+            "Select condition to visualise",
+            options=all_conditions,
+            index=default_index,
+            help="The heatmap highlights regions where the model found evidence for the selected condition.",
+        )
+
+        # Compute Grad-CAM for the selected condition
+        with st.spinner(f"Computing Grad-CAM for {selected_condition}..."):
+            gradcam_image = generate_gradcam(image, model, selected_condition)
+
+        # Show original image and Grad-CAM side by side
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("##### Original Image")
+            st.image(image, width=320, caption="Uploaded X-ray")
+
+        with col2:
+            st.markdown("##### Grad-CAM Heatmap")
+            st.image(gradcam_image, width=320, caption=f"Grad-CAM: {selected_condition}",)
+
 
         # Spaces
         st.write("")
@@ -96,7 +127,7 @@ def main():
         probs_df = pd.DataFrame(sorted_preds, columns=["Condition", "Probability"]) # Create a DataFrame for all labels and probabilities
         chart_df = probs_df.set_index("Condition") # Set index to condition names
 
-        col1, col2 = st.columns(2)  # Initialise two columns
+        col1, col2 = st.columns(2)  # Initialise two columns for each table
 
         # Column 1: Probability table
         with col1:
