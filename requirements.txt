@@ -1,5 +1,7 @@
 tensorflow
 pandas
 streamlit
+matplotlib
+tf_keras_vis
 pillow
 numpy

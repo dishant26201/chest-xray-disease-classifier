@@ -15,9 +15,7 @@ def generate_gradcam(input_image, model, target_label):
 
     # Check if the target label belongs to label set
     if target_label not in LABELS:
-        raise ValueError(
-            "Unknown label" # Display message if not
-        )
+        raise ValueError("Unknown label") # Display message if not
     
     class_index = LABELS.index(target_label) # Get index of label
 
