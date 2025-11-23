@@ -1,4 +1,4 @@
-# ./streamlit_app.py
+# app/streamlit_app.py
 
 import streamlit as st
 from PIL import Image
@@ -33,14 +33,13 @@ def main():
     st.markdown(
     """
 
-    This model was trained on frontal chest radiographs (NIH ChestX-ray14).
+    This is an experimental machine learning model which was trained on frontal chest radiographs (NIH ChestX-ray14). 
+    While it can identify patterns associated with common chest x-rays, it is **not a diagnostic tool** and may produce incorrect results.
     Please do not upload other image types (e.g., photos, lateral x-rays, etc) as the model will produce invalid predictions.
 
     ##### **Model reliability notice**
 
-    This classifier is an experimental machine learning model. While it can identify patterns associated with common chest x-rays, it is **not a diagnostic tool** and may produce incorrect results.
-
-    The model is still a work in progress:
+    This model is still a work in progress:
     - It has been trained for a limited number of epochs.  
     - Further training and tuning are required to improve performance.  
     - Longer training requires additional compute resources which is a limitation.
