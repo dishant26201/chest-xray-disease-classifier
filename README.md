@@ -3,6 +3,7 @@
 This project uses a deep learning model (DenseNet121) to predict 14 thoracic conditions from frontal chest X-ray images.
 
 **Note:** I continue to improve and refine this project from time to time as I learn more about sleep analysis and EEG processing.
+
 **Try the live demo:** https://chest-xray-disease-classifier-demo.streamlit.app/
 
 ## Model Development
