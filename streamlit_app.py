@@ -35,7 +35,6 @@ def main():
 
     This is an experimental machine learning model which was trained on frontal chest X-rays (NIH ChestX-ray14). 
     While it can identify patterns associated with common conditions found in chest X-rays, it is **not a diagnostic tool** and may produce incorrect results.
-    Please do not upload other image types (e.g., photos, lateral x-rays, etc) as the model will produce invalid predictions.
 
     ##### **Model reliability notice**
 
